@@ -1,13 +1,14 @@
 package main
 
 import (
+	"easy-proxy/admin"
 	"easy-proxy/blance"
 	"easy-proxy/proxy"
 	"log"
 	"net/http"
 )
 
-func startServer()  {
+func startProxyServer(addr string)  {
 
 	proxy :=  &proxy.ProxyHandle{}
 	proxy.Addrs = []string{"127.0.0.1:9999"}
@@ -19,17 +20,20 @@ func startServer()  {
 		w++
 	}
 
-	err := http.ListenAndServe(":10000", proxy)
-	if err != nil {
-		log.Fatalln("ListenAndServe: ", err)
+	err := http.ListenAndServe(addr, proxy)
+	if err == nil {
+		log.Panicf("proxy ListenAndServe: %s", addr)
 	}
-
 
 }
 
-
 func main() {
 
-	startServer()
+	go admin.AdminServer(":3000")
 
+	go startProxyServer(":10000")
+
+	select {}
+
+	//go startProxyServer(":10000")
 }
